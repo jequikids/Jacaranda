@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jacarandá - Cadastro</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      min-height: 100vh;
+      margin: 0;
+      padding: 10px;
+    }
+    .container {
+      width: 90%;
+      max-width: 400px;
+      margin: auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    label {
+      display: block;
+      text-align: left;
+      margin: 8px 0 2px;
+      font-size: 14px;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 8px;
+      box-sizing: border-box;
+    }
+    .phone-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .phone-group select {
+      width: 30%;
+    }
+    .phone-group input {
+      width: 70%;
+    }
+    .input-group {
+      position: relative;
+      margin-bottom: 8px;
+    }
+    .input-group input {
+      width: 100%;
+      padding-right: 40px;
+    }
+    .password-toggle {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #888;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #1a73e8;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    button:hover:not(:disabled) {
+      background-color: #1669c1;
+    }
+    a, .link {
+      cursor: pointer;
+      color: #1a73e8;
+      text-decoration: none;
+    }
+    .success-message {
+      color: green;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    .error-message {
+      color: red;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    .loading {
+      background-color: #f0ad4e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .loading span {
+      margin-left: 10px;
+    }
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Tela de Login -->
+  <div class="container" id="login-container">
+    <h2>Login</h2>
+    <label for="login-email">Email</label>
+    <input type="email" id="login-email" placeholder="Email">
+    <label for="login-password">Senha</label>
+    <div class="input-group">
+      <input type="password" id="login-password" placeholder="Senha">
+      <span class="material-icons password-toggle" aria-label="Mostrar senha" onclick="togglePassword('login-password', this)">visibility_off</span>
+    </div>
+    <button id="login-btn" onclick="login()">Entrar</button>
+    <p>
+      <a onclick="showRegister()">Criar conta</a> | 
+      <a onclick="resetPassword()">Esqueci a senha</a>
+    </p>
+    <div id="login-error-message" class="error-message" style="display: none;"></div>
+  </div>
+
+  <!-- Tela de Cadastro -->
+  <div class="container" id="register-container" style="display: none;">
+    <h2>Cadastro</h2>
+    <label for="full-name">Nome completo</label>
+    <input type="text" id="full-name" placeholder="Nome completo">
+    <label for="quadra-select">Quadra</label>
+    <select id="quadra-select">
+      <option value="">Selecione a Quadra</option>
+    </select>
+    <label for="lote-select">Lote</label>
+    <select id="lote-select">
+      <option value="">Selecione o Lote</option>
+    </select>
+    <div class="phone-group">
+      <label for="ddi-select" style="display: none;">DDI</label>
+      <select id="ddi-select">
+        <option value="+55">+55 (BR)</option>
+        <option value="+1">+1 (US/CA)</option>
+        <option value="+44">+44 (UK)</option>
+        <option value="+33">+33 (FR)</option>
+      </select>
+      <label for="phone" style="display: none;">Telefone</label>
+      <input type="text" id="phone" placeholder="Telefone (WhatsApp)" maxlength="15">
+    </div>
+    <label for="register-email">Email</label>
+    <input type="email" id="register-email" placeholder="Email">
+    <label for="register-password">Senha</label>
+    <div class="input-group">
+      <input type="password" id="register-password" placeholder="Senha">
+      <span class="material-icons password-toggle" aria-label="Mostrar senha" onclick="togglePassword('register-password', this)">visibility_off</span>
+    </div>
+    <label for="confirm-password">Confirmar senha</label>
+    <div class="input-group">
+      <input type="password" id="confirm-password" placeholder="Confirmar senha">
+      <span class="material-icons password-toggle" aria-label="Mostrar senha" onclick="togglePassword('confirm-password', this)">visibility_off</span>
+    </div>
+    <button id="register-btn" onclick="register()" disabled>Cadastrar</button>
+    <p>
+      <a id="already-have-account" onclick="showLogin()">Já tenho conta</a>
+    </p>
+    <div id="success-message" class="success-message" style="display: none;">Cadastro realizado</div>
+    <div id="error-message" class="error-message" style="display: none;"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getDatabase, ref, get, set, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCkCmyZcDLt9aTvp1Nvja2bDm5TIppm8mQ",
+      authDomain: "jacaranda-ff546.firebaseapp.com",
+      databaseURL: "https://jacaranda-ff546-default-rtdb.firebaseio.com",
+      projectId: "jacaranda-ff546",
+      storageBucket: "jacaranda-ff546.appspot.com",
+      messagingSenderId: "1060464156996",
+      appId: "1:1060464156996:android:3fb9b5f9706feb69707711"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+
+    const loteOptions = {
+      "01": Array.from({ length: 14 }, (_, i) => (i + 1).toString().padStart(2, '0')),
+      "02": Array.from({ length: 49 }, (_, i) => (i + 1).toString().padStart(2, '0')),
+      "03": Array.from({ length: 54 }, (_, i) => (i + 1).toString().padStart(2, '0')),
+      "04": Array.from({ length: 19 }, (_, i) => (i + 1).toString().padStart(2, '0')),
+      "05": Array.from({ length: 48 }, (_, i) => (i + 1).toString().padStart(2, '0')),
+      "06": Array.from({ length: 42 }, (_, i) => (i + 1).toString().padStart(2, '0')),
+      "07": Array.from({ length: 23 }, (_, i) => (i + 1).toString().padStart(2, '0')),
+      "08": Array.from({ length: 48 }, (_, i) => (i + 1).toString().padStart(2, '0')),
+      "09": Array.from({ length: 17 }, (_, i) => (i + 1).toString().padStart(2, '0')),
+      "10": Array.from({ length: 28 }, (_, i) => (i + 1).toString().padStart(2, '0')),
+      "11": Array.from({ length: 48 }, (_, i) => (i + 1).toString().padStart(2, '0')),
+      "12": Array.from({ length: 32 }, (_, i) => (i + 1).toString().padStart(2, '0')),
+      "13": Array.from({ length: 48 }, (_, i) => (i + 1).toString().padStart(2, '0')),
+      "14": Array.from({ length: 37 }, (_, i) => (i + 1).toString().padStart(2, '0')),
+      "15": Array.from({ length: 48 }, (_, i) => (i + 1).toString().padStart(2, '0')),
+      "16": Array.from({ length: 41 }, (_, i) => (i + 1).toString().padStart(2, '0')),
+      "17": Array.from({ length: 48 }, (_, i) => (i + 1).toString().padStart(2, '0')),
+      "19": Array.from({ length: 34 }, (_, i) => (i + 1).toString().padStart(2, '0')),
+      "20": Array.from({ length: 40 }, (_, i) => (i + 1).toString().padStart(2, '0'))
+    };
+
+    const quadraSelect = document.getElementById('quadra-select');
+    const loteSelect = document.getElementById('lote-select');
+    const ddiSelect = document.getElementById('ddi-select');
+    const registerBtn = document.getElementById('register-btn');
+    const loginBtn = document.getElementById('login-btn');
+
+    try {
+      const quadras = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,19,20];
+      quadras.forEach(i => {
+        let value = i.toString().padStart(2, '0');
+        let option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        quadraSelect.appendChild(option);
+      });
+    } catch (error) {
+      console.error('Erro ao carregar quadras:', error);
+    }
+
+    const updateLoteOptions = () => {
+      let selectedQuadra = quadraSelect.value;
+      loteSelect.innerHTML = ''; 
+      if (loteOptions[selectedQuadra]) {
+        let lots = loteOptions[selectedQuadra];
+        let defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = 'Selecione o Lote';
+        loteSelect.appendChild(defaultOption);
+        lots.forEach(lote => {
+          let option = document.createElement('option');
+          option.value = lote;
+          option.textContent = lote;
+          loteSelect.appendChild(option);
+        });
+        loteSelect.disabled = false;
+      } else {
+        let option = document.createElement('option');
+        option.value = '';
+        option.textContent = 'Sem lote disponível';
+        loteSelect.appendChild(option);
+        loteSelect.disabled = true;
+      }
+      validateRegisterForm();
+    };
+
+    quadraSelect.addEventListener('change', updateLoteOptions);
+
+    const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+    document.getElementById('phone').addEventListener('input', (e) => {
+      let value = e.target.value.replace(/\D/g, '');
+      const ddi = ddiSelect.value;
+      
+      if (ddi === '+55') {
+        if (value.length > 11) value = value.slice(0, 11);
+        value = value.replace(/^(\d{2})(\d)/g, '($1) $2');
+        value = value.replace(/(\d{5})(\d)/, '$1-$2');
+      } else {
+        if (value.length > 15) value = value.slice(0, 15);
+      }
+      e.target.value = value;
+      validateRegisterForm();
+    });
+
+    const validateRegisterForm = () => {
+      const fullName = document.getElementById('full-name').value;
+      const quadra = quadraSelect.value;
+      const lote = loteSelect.value;
+      const phone = document.getElementById('phone').value.replace(/\D/g, '');
+      const email = document.getElementById('register-email').value;
+      const password = document.getElementById('register-password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+
+      registerBtn.disabled = !(fullName && quadra && lote && phone && isValidEmail(email) && password && confirmPassword);
+    };
+
+    ['full-name', 'quadra-select', 'lote-select', 'phone', 'register-email', 'register-password', 'confirm-password'].forEach(id => {
+      document.getElementById(id).addEventListener('input', validateRegisterForm);
+    });
+
+    window.togglePassword = (inputId, iconElement) => {
+      const input = document.getElementById(inputId);
+      if (input.type === "password") {
+        input.type = "text";
+        iconElement.textContent = "visibility";
+        iconElement.setAttribute('aria-label', 'Esconder senha');
+      } else {
+        input.type = "password";
+        iconElement.textContent = "visibility_off";
+        iconElement.setAttribute('aria-label', 'Mostrar senha');
+      }
+    };
+
+    window.login = async () => {
+      const errorMsg = document.getElementById('login-error-message');
+      errorMsg.style.display = 'none';
+      
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+
+      if (!email || !password) {
+        errorMsg.textContent = 'Por favor, preencha todos os campos.';
+        errorMsg.style.display = 'block';
+        return;
+      }
+
+      if (!isValidEmail(email)) {
+        errorMsg.textContent = 'Email inválido.';
+        errorMsg.style.display = 'block';
+        return;
+      }
+
+      loginBtn.innerHTML = '<span class="spinner"></span><span>Entrando...</span>';
+      loginBtn.classList.add('loading');
+      loginBtn.disabled = true;
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+
+        const cadastrosRef = ref(database, 'CADASTROS');
+        const emailQuery = query(cadastrosRef, orderByChild('Email'), equalTo(email));
+        const snapshot = await get(emailQuery);
+
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const keys = Object.keys(data);
+          if (keys.length > 1) {
+            throw new Error('Mais de um cadastro encontrado para este email.');
+          }
+          const qlKey = keys[0];
+          localStorage.setItem('Email', email);
+          localStorage.setItem('QL', qlKey);
+        } else {
+          throw new Error('Nenhum cadastro encontrado para este email.');
+        }
+
+        window.location.href = 'Menu.html';
+      } catch (error) {
+        errorMsg.textContent = error.code === 'auth/invalid-credential' ? 'Credenciais inválidas.' : error.message;
+        errorMsg.style.display = 'block';
+        loginBtn.innerHTML = 'Entrar';
+        loginBtn.classList.remove('loading');
+        loginBtn.disabled = false;
+      }
+    };
+
+    window.register = async () => {
+      const errorMsg = document.getElementById('error-message');
+      errorMsg.style.display = 'none';
+
+      const fullName = document.getElementById('full-name').value.toUpperCase();
+      const quadra = quadraSelect.value;
+      const lote = loteSelect.value;
+      const ddi = ddiSelect.value;
+      const phone = document.getElementById('phone').value.replace(/\D/g, '');
+      const fullPhone = ddi + phone;
+      const email = document.getElementById('register-email').value.toLowerCase();
+      const password = document.getElementById('register-password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+
+      if (!fullName || !quadra || !lote || !phone || !email || !password || !confirmPassword) {
+        errorMsg.textContent = 'Por favor, preencha todos os campos.';
+        errorMsg.style.display = 'block';
+        return;
+      }
+
+      if (!isValidEmail(email)) {
+        errorMsg.textContent = 'Email inválido.';
+        errorMsg.style.display = 'block';
+        return;
+      }
+
+      if (ddi === '+55') {
+        const ddd = phone.slice(0, 2);
+        if (!/^(1[1-9]|[2-9][0-9])$/.test(ddd) || (phone.length !== 10 && phone.length !== 11)) {
+          errorMsg.textContent = 'Telefone inválido (DDD ou tamanho incorreto).';
+          errorMsg.style.display = 'block';
+          return;
+        }
+      } else if (phone.length < 6) {
+        errorMsg.textContent = 'Telefone inválido (mínimo 6 dígitos).';
+        errorMsg.style.display = 'block';
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        errorMsg.textContent = 'As senhas não coincidem.';
+        errorMsg.style.display = 'block';
+        document.getElementById('already-have-account').style.display = 'inline';
+        return;
+      }
+
+      const alreadyHaveAccount = document.getElementById('already-have-account');
+      registerBtn.innerHTML = '<span class="spinner"></span><span>Salvando...</span>';
+      registerBtn.classList.add('loading');
+      registerBtn.disabled = true;
+      alreadyHaveAccount.style.display = 'none';
+
+      const cadastroRef = ref(database, `CADASTROS/Q${quadra}L${lote}`);
+      try {
+        const cadastroSnapshot = await get(cadastroRef);
+        if (cadastroSnapshot.exists()) {
+          throw new Error(`Já existe um registro para Quadra ${quadra} e Lote ${lote}.`);
+        }
+
+        await createUserWithEmailAndPassword(auth, email, password);
+        await set(cadastroRef, {
+          Email: email,
+          Nome: fullName,
+          Telefone: fullPhone,
+          Quadra: quadra,
+          Lote: lote,
+          Status: "Pendente"
+        });
+
+        document.getElementById('success-message').style.display = 'block';
+        setTimeout(() => {
+          document.getElementById('full-name').value = '';
+          quadraSelect.value = '';
+          loteSelect.innerHTML = '';
+          document.getElementById('phone').value = '';
+          document.getElementById('register-email').value = '';
+          document.getElementById('register-password').value = '';
+          document.getElementById('confirm-password').value = '';
+          errorMsg.style.display = 'none';
+
+          showLogin();
+          document.getElementById('success-message').style.display = 'none';
+          document.getElementById('already-have-account').style.display = 'inline';
+          registerBtn.innerHTML = 'Cadastrar';
+          registerBtn.classList.remove('loading');
+          registerBtn.disabled = false;
+        }, 3000);
+      } catch (error) {
+        const errorMessage = error.message.includes('weak-password') ? 
+          'A senha deve ter pelo menos 6 caracteres' : 
+          error.message.includes('email-already-in-use') ?
+          'Este email já está em uso' : error.message;
+        errorMsg.textContent = errorMessage;
+        errorMsg.style.display = 'block';
+        alreadyHaveAccount.style.display = 'inline';
+        registerBtn.innerHTML = 'Cadastrar';
+        registerBtn.classList.remove('loading');
+        registerBtn.disabled = false;
+      }
+    };
+
+    window.resetPassword = async () => {
+      const errorMsg = document.getElementById('login-error-message');
+      errorMsg.style.display = 'none';
+      
+      const email = document.getElementById('login-email').value;
+      if (!email) {
+        errorMsg.textContent = 'Por favor, insira seu email.';
+        errorMsg.style.display = 'block';
+        return;
+      }
+      if (!isValidEmail(email)) {
+        errorMsg.textContent = 'Email inválido.';
+        errorMsg.style.display = 'block';
+        return;
+      }
+      try {
+        await sendPasswordResetEmail(auth, email);
+        errorMsg.textContent = 'Email de recuperação enviado!';
+        errorMsg.classList.remove('error-message');
+        errorMsg.classList.add('success-message');
+        errorMsg.style.display = 'block';
+        setTimeout(() => {
+          errorMsg.style.display = 'none';
+          errorMsg.classList.remove('success-message');
+          errorMsg.classList.add('error-message');
+        }, 3000);
+      } catch (error) {
+        errorMsg.textContent = 'Erro ao enviar email de recuperação.';
+        errorMsg.style.display = 'block';
+      }
+    };
+
+    window.showRegister = () => {
+      document.getElementById('login-container').style.display = 'none';
+      document.getElementById('register-container').style.display = 'block';
+      document.getElementById('full-name').value = '';
+      quadraSelect.value = '';
+      loteSelect.innerHTML = '';
+      updateLoteOptions();
+      ddiSelect.value = '+55';
+      document.getElementById('phone').value = '';
+      document.getElementById('register-email').value = '';
+      document.getElementById('register-password').value = '';
+      document.getElementById('confirm-password').value = '';
+      document.getElementById('error-message').style.display = 'none';
+      document.getElementById('success-message').style.display = 'none';
+      registerBtn.innerHTML = 'Cadastrar';
+      registerBtn.classList.remove('loading');
+      registerBtn.disabled = true;
+    };
+
+    window.showLogin = () => {
+      document.getElementById('login-container').style.display = 'block';
+      document.getElementById('register-container').style.display = 'none';
+      document.getElementById('login-email').value = '';
+      document.getElementById('login-password').value = '';
+      document.getElementById('login-error-message').style.display = 'none';
+      document.getElementById('already-have-account').style.display = 'inline';
+      registerBtn.innerHTML = 'Cadastrar';
+      registerBtn.classList.remove('loading');
+      registerBtn.disabled = true;
+      loginBtn.innerHTML = 'Entrar';
+      loginBtn.classList.remove('loading');
+      loginBtn.disabled = false;
+    };
+
+    window.addEventListener('offline', () => {
+      const errorMsg = document.getElementById('error-message') || document.getElementById('login-error-message');
+      errorMsg.textContent = 'Sem conexão com a internet.';
+      errorMsg.style.display = 'block';
+    });
+
+    window.addEventListener('online', () => {
+      const errorMsg = document.getElementById('error-message') || document.getElementById('login-error-message');
+      errorMsg.style.display = 'none';
+    });
+  </script>
+</body>
+</html>
